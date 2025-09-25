@@ -1,6 +1,7 @@
 
 import numpy as np
 import torch
+from datetime import datetime
 
 class BaseAgent():
     def __init__(self, input_dims, n_actions, gamma=0.99, epsilon=1.0, epsilon_dec=5e-7, min_epsilon=0.01,
@@ -16,6 +17,7 @@ class BaseAgent():
         self.replace_limit = replace_limit
         self.batch_size = batch_size
         self.env_name=env_name
+
         self.networks = []
 
     def choose_action(self, observation):

@@ -16,7 +16,6 @@ class ReplayBufferAgent(BaseAgent):
     
     def sample_from_buffer(self):
         states, actions, rewards, next_states, terminals = self.memory.sample_from_buffer(self.batch_size)
-
         states = torch.tensor(states).to(self.q_eval.device)
         actions = torch.tensor(actions).to(self.q_eval.device)
         rewards = torch.tensor(rewards).to(self.q_eval.device)
