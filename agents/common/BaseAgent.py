@@ -1,0 +1,35 @@
+
+import numpy as np
+import torch
+
+class BaseAgent():
+    def __init__(self, input_dims, n_actions, gamma=0.99, epsilon=1.0, epsilon_dec=5e-7, min_epsilon=0.01,
+                  batch_size=32, learning_rate=0.1, replace_limit=1000, env_name=None, mem_size=100_000):
+        self.gamma = gamma
+        self.epsilon = epsilon
+        self.epsilon_dec = epsilon_dec
+        self.min_epsilon = min_epsilon
+        self.learning_rate = learning_rate
+        self.n_actions = n_actions
+        self.input_dims = input_dims
+        self.learn_step_cnt = 0
+        self.replace_limit = replace_limit
+        self.batch_size = batch_size
+        self.env_name=env_name
+        self.networks = []
+
+    def choose_action(self, observation):
+        if np.random.random() > self.epsilon:
+            state = torch.tensor(observation, dtype=torch.float).unsqueeze(0).to(self.q_eval.device) # unsqueeze to add required batch dimension
+            action = self.q_eval(state).argmax().item()
+        else:
+            action = np.random.choice(self.n_actions)
+        return action
+
+    def save_models(self):
+        for network in self.networks:
+            network.save_checkpoint()
+
+    def load_models(self):
+        for network in self.networks:
+            network.load_checkpoint()

@@ -22,7 +22,7 @@ def main():
         frame_skip=4,
         noop_max=30,
         terminal_on_life_loss=False,
-        scale_obs=False,   # keep 0..255, we’ll divide by 255. later
+        scale_obs=False, 
     )
     env = FrameStackObservation(env, stack_size=4)  # returns HWC: (84,84,4)
     env = TransformObservation(
@@ -32,7 +32,7 @@ def main():
             low=0, high=1, shape=(4, 84, 84), dtype=np.float32
         ),
     )
-    print("Obsv space is:", env.observation_space.shape)  # (210,160,3)
+    print("Obsv space is:", env.observation_space.shape)
 
     agent = DeepQAgent(
         n_actions=env.action_space.n,
