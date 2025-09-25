@@ -88,6 +88,7 @@ def train(
     scale_obs: bool = False,
     # Resume:
     load_model_checkpoint: Optional[bool] = False,
+    resume_training: Optional[bool] = False,
 ):
     """
     Train a (Double) DQN agent on an Atari environment.
@@ -109,7 +110,8 @@ def train(
         noop_max: Random no-op at reset (exploration)
         terminal_on_life_loss: Treat life loss as terminal (Atari)
         scale_obs: If True, AtariPreprocessing scales to [0,1] (we already normalize later)
-        load_model_checkpoint: Optional flag to load previous model (choose in cli)
+        load_model_checkpoint: Optional flag to load previous models for inference ONLY (choose in cli)
+        resume_training: Optional flag to load previous models for further training (choose in cli)
     """
     # --- Env & figure file ---
     env_obj = _make_env(
@@ -142,7 +144,7 @@ def train(
         batch_size=batch_size,
         replace_limit=replace_target_every,
     )
-    if load_model_checkpoint:
+    if load_model_checkpoint or resume_training:
         agent.load_models()
 
     # --- Training loop ---
