@@ -8,7 +8,7 @@ import torch.optim as optim
 
 
 class DeepQNetwork(nn.Module):
-    def __init__(self, n_actions, input_dims, file_name, lr=0.01, checkpoint_dir="models/DQN"):
+    def __init__(self, n_actions, input_dims, file_name, lr=0.0001, checkpoint_dir="models/Unknown"):
         super().__init__()
         
         self.mdl_checkpoint_dir = checkpoint_dir
@@ -54,6 +54,7 @@ class DeepQNetwork(nn.Module):
     
     def save_checkpoint(self):
         print("...saving checkpoint...")
+        os.makedirs(os.path.dirname(self.mdl_checkpoin_filename), exist_ok=True)
         torch.save(self.state_dict(), self.mdl_checkpoin_filename)
 
     def load_checkpoint(self):

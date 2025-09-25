@@ -1,6 +1,9 @@
 from collections import defaultdict
 import torch
 import numpy as np
+from datetime import datetime
+from utils import sanitize_file_string
+
 
 from networks.deepQNetwork import DeepQNetwork
 from agents.common.ReplayBufferAgent import ReplayBufferAgent
@@ -9,24 +12,30 @@ from agents.common.ReplayBufferAgent import ReplayBufferAgent
 
 
 class DeepQAgent(ReplayBufferAgent):
-    def __init__(self, *args, **kwargs):
+    """
+    Deep Q Learning Agent, based on https://arxiv.org/pdf/1312.5602
+    """
+    def __init__(self, model_name="DQN", *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        safe_env = (self.env_name or "env").replace("/", "_").replace("\\", "_")
-        self.filename_root = f"DQN_lr{self.learning_rate}_gamma{self.gamma}_eps{self.epsilon}__{safe_env}"
+        
+        self.checkpoint_dir = f"models/{model_name}/{sanitize_file_string(self.env_name)}"
+        self.filename_root = f"{model_name}_{sanitize_file_string(self.env_name)}_lr{self.learning_rate}_gamma{self.gamma}_eps{self.epsilon}_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}"
 
         self.q_eval = DeepQNetwork( 
             self.n_actions, 
             self.input_dims, 
             self.filename_root + "_eval", 
-            lr=self.learning_rate
+            lr=self.learning_rate,
+            checkpoint_dir=self.checkpoint_dir
         )
 
         self.q_target = DeepQNetwork( 
             self.n_actions, 
             self.input_dims, 
             self.filename_root + "_target", 
-            lr=self.learning_rate
+            lr=self.learning_rate,
+            checkpoint_dir=self.checkpoint_dir
         )
 
         self.networks = [self.q_eval, self.q_target] # for savings model dicts

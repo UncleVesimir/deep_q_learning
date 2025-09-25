@@ -4,7 +4,7 @@ import torch
 
 class BaseAgent():
     def __init__(self, input_dims, n_actions, gamma=0.99, epsilon=1.0, epsilon_dec=5e-7, min_epsilon=0.01,
-                  batch_size=32, learning_rate=0.1, replace_limit=1000, env_name=None, mem_size=100_000):
+                  batch_size=32, learning_rate=0.001, replace_limit=1000, env_name=None):
         self.gamma = gamma
         self.epsilon = epsilon
         self.epsilon_dec = epsilon_dec

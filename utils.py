@@ -24,3 +24,6 @@ def plot_learning_curve(x, scores, epsilons, filename):
     ax2.tick_params(axis="y", colors="C1")
 
     plt.savefig(filename)
+
+def sanitize_file_string(s):
+    return (s).replace("/", "_").replace("\\", "_")
