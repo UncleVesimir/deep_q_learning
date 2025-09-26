@@ -8,7 +8,7 @@ class ReplayBufferAgent(BaseAgent):
     def __init__(self, mem_size=100_000,*args, **kwargs):
         super().__init__(*args, **kwargs)
         self.mem_size = mem_size
-        self.memory = ReplayBuffer(self.mem_size, self.input_dims, self.n_actions)
+        self.memory = ReplayBuffer(mem_size=self.mem_size, input_dims=self.input_dims)
 
     def store_transition(self, state, action, reward, next_state, terminal):
         self.memory.store_transition(state, action, reward, next_state, terminal)

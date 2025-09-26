@@ -4,8 +4,11 @@ import torch
 from datetime import datetime
 
 class BaseAgent():
-    def __init__(self, input_dims, n_actions, gamma=0.99, epsilon=1.0, epsilon_dec=5e-7, min_epsilon=0.01,
+    def __init__(self, *, input_dims=None, n_actions=None, gamma=0.99, epsilon=1.0, epsilon_dec=5e-7, min_epsilon=0.01,
                   batch_size=32, learning_rate=0.001, replace_limit=1000, env_name=None):
+        if not input_dims or not n_actions:
+            raise ValueError("Agent requires inputs_dims and n_actions to be set")
+
         self.gamma = gamma
         self.epsilon = epsilon
         self.epsilon_dec = epsilon_dec

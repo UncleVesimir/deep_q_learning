@@ -33,8 +33,8 @@ class DuelingDeepQNetwork(nn.Module):
 
         ## Optimizer, loss function, device setup
         self.optimizer = optim.Adam(self.parameters(), lr=lr, eps=optim_eps)
-        self.loss = nn.MSELoss()
-        
+        self.loss = nn.MSELoss(reduction="none")
+
         self.device = torch.device("mps" if torch.backends.mps.is_available() else 'cuda:0' if torch.cuda.is_available() else 'cpu')
         print(f"Using device: {self.device}")
         self.to(self.device)
@@ -57,9 +57,11 @@ class DuelingDeepQNetwork(nn.Module):
         conv3 = F.relu(self.conv3(conv2)) # conv3 output is shape batch_size x filters x H x W
         flat = conv3.view(conv3.size()[0], -1)  # flatten 
         fc1 = F.relu(self.fc1(flat))
-        actions = self.fc2(fc1)
+        advantage = self.advantage_stream(fc1)
+        value = self.value_stream(fc1)
+        q = value + ( advantage - advantage.mean(dim=1, keepdim=True) )
 
-        return actions
+        return q
     
     def save_checkpoint(self):
         print("...saving checkpoint...")

@@ -13,6 +13,7 @@ import agents.Agents as Agents  # your agents package (adjust import path if nee
 from utils import plot_learning_curve, sanitize_file_string
 
 import arguably
+import json
 
 
 def _make_env(
@@ -64,6 +65,15 @@ def _ensure_model_dir(models_dir: str, model_type: str, env_name: str):
     base = os.path.join(models_dir, model_type, sanitize_file_string(env_name))
     os.makedirs(base, exist_ok=True)
     return base
+
+
+def _checkpoint_path(models_dir: str, model_type: str, env_name: str, lr: float, gamma: float) -> str:
+    safe_env = sanitize_file_string(env_name)
+    stats_dir = os.path.join(models_dir, model_type, "stats")
+    os.makedirs(stats_dir, exist_ok=True)
+    # Note: No timestamp, so we can resume from it.
+    filename = f"{model_type}_{safe_env}_lr{lr}_gamma{gamma}_stats.json"
+    return os.path.join(stats_dir, filename)
 
 
 @arguably.command
@@ -127,6 +137,7 @@ def train(
 
     fig_path = _figure_path(models_dir, model, env, lr, gamma, epsilon)
     _ensure_model_dir(models_dir, model, env)
+    checkpoint_file = _checkpoint_path(models_dir, model, env, lr, gamma)
 
     # --- Agent selection (expects names in Agents) ---
     Agent = Agents.agents_dict.get(model)
@@ -144,17 +155,32 @@ def train(
         batch_size=batch_size,
         replace_limit=replace_target_every,
     )
-    if load_model_checkpoint or resume_training:
-        agent.load_models()
 
-    # --- Training loop ---
+    # --- State Initialization ---
     scores, eps_history, steps_array = [], [], []
     n_steps, best_score = 0, -np.inf
+    start_episode = 0
+
+    if resume_training and os.path.exists(checkpoint_file):
+        print(f"Resuming training from {checkpoint_file}")
+        with open(checkpoint_file, 'r') as f:
+            state = json.load(f)
+        agent.load_models()
+        start_episode = state['episode'] + 1
+        scores = state['scores']
+        eps_history = state['eps_history']
+        steps_array = state['steps_array']
+        n_steps = state['n_steps']
+        agent.epsilon = state['epsilon']
+        best_score = state.get('best_score', -np.inf)
+    elif load_model_checkpoint:
+        agent.load_models()
+
 
     train_start_datetime = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
 
     print(f"Commencing {model} training on {env} at {train_start_datetime}")
-    for i in range(episodes):
+    for i in range(start_episode, episodes):
         state, _ = env_obj.reset()
         score, done = 0.0, False
 
@@ -189,6 +215,19 @@ def train(
                 agent.save_models()
 
         eps_history.append(agent.epsilon)
+
+        if not load_model_checkpoint:
+            training_state = {
+                'episode': i,
+                'scores': scores,
+                'eps_history': eps_history,
+                'steps_array': steps_array,
+                'n_steps': n_steps,
+                'epsilon': agent.epsilon,
+                'best_score': best_score
+            }
+            with open(checkpoint_file, 'w') as f:
+                json.dump(training_state, f, indent=4)
 
     plot_learning_curve(steps_array, scores, eps_history, filename=fig_path)
     print(f"Saved learning curve to: {fig_path}")

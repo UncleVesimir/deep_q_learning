@@ -1,7 +1,10 @@
 import numpy as np
 
 class ReplayBuffer():
-    def __init__(self, mem_size, input_dims, n_actions):
+    def __init__(self, *, mem_size=None, input_dims=None):
+        if not mem_size or not input_dims:
+            raise ValueError("Replay Buffer requires mem_size and input_dim to be set")
+        
         self.mem_size = mem_size
         self.mem_cntr = 0
         self.state_memory = np.zeros((self.mem_size, *input_dims), dtype=np.float32)

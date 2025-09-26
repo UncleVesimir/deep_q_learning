@@ -1,11 +1,8 @@
-from collections import defaultdict
-import torch
 import numpy as np
 from datetime import datetime
 from utils import sanitize_file_string
 
-
-from networks.deepQNetwork import DeepQNetwork
+from networks.DeepQNetwork import DeepQNetwork
 from agents.common.ReplayBufferAgent import ReplayBufferAgent
 
 
