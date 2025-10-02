@@ -26,7 +26,7 @@ class BaseAgent():
     def choose_action(self, observation):
         if np.random.random() > self.epsilon:
             state = torch.tensor(observation, dtype=torch.float).unsqueeze(0).to(self.q_eval.device) # unsqueeze to add required batch dimension
-            action = self.q_eval(state).argmax().item()
+            action = self.networks[0](state).argmax().item()
         else:
             action = np.random.choice(self.n_actions)
         return action

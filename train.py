@@ -89,6 +89,7 @@ def train(
     batch_size: int = 32,
     replace_target_every: int = 1000,
     models_dir: str = "models",
+    mem_size: int = 100000,
     # Atari preprocessing knobs:
     screen_size: int = 84,
     grayscale: bool = True,
@@ -114,6 +115,7 @@ def train(
         batch_size: Batch size for updates
         replace_target_every: Hard update frequency for the target net
         models_dir: Root directory for model files & figures
+        mem_size: Replay buffer size
         screen_size: Preprocess to square size (default 84)
         grayscale: Use grayscale frames
         frame_skip: Frameskip inside AtariPreprocessing (base env frameskip is set to 1)
@@ -154,6 +156,7 @@ def train(
         learning_rate=lr,
         batch_size=batch_size,
         replace_limit=replace_target_every,
+        mem_size=mem_size
     )
 
     # --- State Initialization ---

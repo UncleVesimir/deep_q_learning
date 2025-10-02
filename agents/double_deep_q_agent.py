@@ -4,7 +4,7 @@ import numpy as np
 from datetime import datetime
 from utils import sanitize_file_string
 
-from networks.DeepQNetwork import DeepQNetwork
+from networks.deepQNetwork import DeepQNetwork
 from agents.common.ReplayBufferAgent import ReplayBufferAgent
 
 
